@@ -107,7 +107,7 @@ namespace Nanomite.Server.Authenticaton.Handler
         {
             string filter = string.Format("LoginName eq '{0}' and passwordHash eq '{1}'", user, passwordHash);
             var result = CommonRepositoryHandler.GetListByQuery(typeof(NetworkUser), filter, false).Cast<NetworkUser>().FirstOrDefault();
-            return await Task.FromResult(result?.AuthenticationToken);
+            return await Task.FromResult(result?.LoginName);
         }
     }
 }
