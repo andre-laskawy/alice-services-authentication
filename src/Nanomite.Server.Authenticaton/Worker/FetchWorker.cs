@@ -62,8 +62,9 @@ namespace Nanomite.Server.Authenticaton.Worker
                     return Unauthorized();
                 }
 
+                string acceptedType = Any.GetTypeName(Any.Pack(new NetworkUser()).TypeUrl);
                 if (string.IsNullOrEmpty(req.TypeDescription)
-                    || req.TypeDescription != Any.Pack(new NetworkUser()).TypeUrl)
+                    || req.TypeDescription != acceptedType)
                 {
                     throw new Exception("invalid modeltype for fetch request");
                 }
