@@ -24,6 +24,7 @@ namespace Nanomite.Server.Authenticaton
     using Nanomite.Core.DataAccess;
     using Nanomite.Core.DataAccess.Database;
     using Nanomite.Server.Authenticaton.Data.Database;
+    using Nanomite.Core.Network.Common.Chunking;
 
     /// <summary>
     /// Defines the <see cref="AuthenticationServer" />
@@ -106,7 +107,7 @@ namespace Nanomite.Server.Authenticaton
         private void StartGrpcServer(IPEndPoint endpoint, string srcDeviceId)
         {
             // GRPC server
-            IServer<Command, FetchRequest, GrpcResponse> communicationServiceGrpc = GRPCServer.Create(endpoint, null, null);
+            IServer<Command, FetchRequest, GrpcResponse> communicationServiceGrpc = GRPCServer.Create(endpoint, new ChunkSender(), new ChunkReceiver());
             StartServer(srcDeviceId, communicationServiceGrpc);
         }
 
