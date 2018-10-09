@@ -27,7 +27,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.4" />
     <PackageReference Include="Nanomite.Core.Authentication" Version="1.0.0" />
-    <PackageReference Include="Nanomite.Core.Server" Version="1.0.3" />
+    <PackageReference Include="Nanomite.Core.Network" Version="1.0.22" />
+    <PackageReference Include="Nanomite.Core.Server" Version="1.0.4" />
     <PackageReference Include="Nanomite.Core.DataAccess" Version="1.0.0" />
   </ItemGroup>
 
@@ -48,5 +49,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1Dev_1json__JSONSchema="http://json.schemastore.org/gitlab-ci" /></VisualStudio></ProjectExtensions>
 
 </Project>

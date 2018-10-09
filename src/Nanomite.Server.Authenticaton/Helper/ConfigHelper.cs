@@ -59,32 +59,62 @@ namespace Nanomite.MessageBroker.Helper
         }
 
         /// <summary>
-        /// Gets or sets the default user.
+        /// Gets or sets the broker user.
         /// </summary>
-        public string DefaultUser
+        public string BrokerUser
         {
             get
             {
-                return Configuration["DefaultUser"];
+                return Configuration["BrokerUser"];
             }
             set
             {
-                Configuration["DefaultUser"] = value.ToString();
+                Configuration["BrokerUser"] = value.ToString();
             }
         }
 
         /// <summary>
-        /// Gets or sets the default user pass.
+        /// Gets or sets the broker pass.
         /// </summary>
-        public string DefaultUserPass
+        public string BrokerPass
         {
             get
             {
-                return Configuration["DefaultUserPass"];
+                return Configuration["BrokerPass"];
             }
             set
             {
-                Configuration["DefaultUserPass"] = value.ToString();
+                Configuration["BrokerPass"] = value.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the authentication service user.
+        /// </summary>
+        public string AuthServiceUser
+        {
+            get
+            {
+                return Configuration["AuthServiceUser"];
+            }
+            set
+            {
+                Configuration["AuthServiceUser"] = value.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the authentication service pass.
+        /// </summary>
+        public string AuthServicePass
+        {
+            get
+            {
+                return Configuration["AuthServicePass"];
+            }
+            set
+            {
+                Configuration["AuthServicePass"] = value.ToString();
             }
         }
 

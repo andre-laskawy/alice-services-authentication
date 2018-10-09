@@ -43,7 +43,57 @@ namespace Nanomite.Server.Authenticaton.Handler
         {
             GrpcResponse result = null;
 
-            if (cmd.Topic == StaticCommandKeys.Connect)
+            if (cmd.Topic == StaticCommandKeys.TokenValidation)
+            {
+                try
+                {
+                    var user = cmd.Data.FirstOrDefault().CastToModel<NetworkUser>();
+                    if (user == null || !string.IsNullOrEmpty(user.AuthenticationToken))
+                    {
+                        throw new Exception("Ivalid validation data.");
+                    }
+
+                    if (!this.handler.Authenticate(user.AuthenticationToken))
+                    {
+                        user.AuthenticationToken = "";
+                    }
+
+                    result = new GrpcResponse() { Result = ResultCode.Ok };
+                    result.Data.Add(Any.Pack(user));
+                }
+                catch (Exception ex)
+                {
+                    // Todo logging
+                    Console.WriteLine(ex);
+                    result = new GrpcResponse() { Result = ResultCode.Error };
+                    result.Data.Add(Any.Pack(ex.ToProtoException()));
+                }
+
+                return result;
+            }
+            else if (cmd.Topic == StaticCommandKeys.UserValidation)
+            {
+                try
+                {
+                    var user = cmd.Data.FirstOrDefault().CastToModel<NetworkUser>();
+                    if (user == null)
+                    {
+                        throw new Exception("Ivalid validation data.");
+                    }
+
+                    return await this.AuthenticateUser(user);
+                }
+                catch (Exception ex)
+                {
+                    // Todo logging
+                    Console.WriteLine(ex);
+                    result = new GrpcResponse() { Result = ResultCode.Error };
+                    result.Data.Add(Any.Pack(ex.ToProtoException()));
+                }
+
+                return result;
+            }
+            else if (cmd.Topic == StaticCommandKeys.Connect)
             {
                 try
                 {
@@ -62,29 +112,21 @@ namespace Nanomite.Server.Authenticaton.Handler
                     }
                     else
                     {
-                        user.AuthenticationToken = await this.handler.Authenticate(user.LoginName, user.PasswordHash);
-                        if (string.IsNullOrEmpty(user.AuthenticationToken))
-                        {
-                            throw new Exception("Invalid user or password");
-                        }
+                        return await this.AuthenticateUser(user);
                     }
-
-                    result = new GrpcResponse() { Result = ResultCode.Ok };
-                    result.Data.Add(Any.Pack(user));
                 }
                 catch (Exception ex)
                 {
                     // Todo logging
                     Console.WriteLine(ex);
-                    result = new GrpcResponse() { Result = ResultCode.Ok };
+                    result = new GrpcResponse() { Result = ResultCode.Error };
                     result.Data.Add(Any.Pack(ex.ToProtoException()));
                 }
 
                 return result;
             }
 
-
-            return new GrpcResponse() { Result = ResultCode.Ok, Message = "Invalid Topic" };
+            return new GrpcResponse() { Result = ResultCode.Error, Message = "Invalid Topic" };
         }
 
         /// <summary>
@@ -98,6 +140,33 @@ namespace Nanomite.Server.Authenticaton.Handler
         }
 
         /// <summary>
+        /// Authenticates the user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns>the grpc response</returns>
+        private async Task<GrpcResponse> AuthenticateUser(NetworkUser user)
+        {
+            var result = new GrpcResponse() { Result = ResultCode.Ok };
+            try
+            {
+                user.AuthenticationToken = await this.handler.Authenticate(user.LoginName, user.PasswordHash);
+                if (string.IsNullOrEmpty(user.AuthenticationToken))
+                {
+                    throw new Exception("Invalid user or password");
+                }
+
+                result.Data.Add(Any.Pack(user));
+            }
+            catch (Exception ex)
+            {
+                result = new GrpcResponse() { Result = ResultCode.Error };
+                result.Data.Add(Any.Pack(ex.ToProtoException()));
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Gets the user from the databas
         /// </summary>
         /// <param name="user">The user.</param>
@@ -105,7 +174,7 @@ namespace Nanomite.Server.Authenticaton.Handler
         /// <returns>the users token</returns>
         private async Task<string> GetUser(string user, string passwordHash)
         {
-            string filter = string.Format("LoginName eq '{0}' and passwordHash eq '{1}'", user, passwordHash);
+                string filter = string.Format("LoginName eq '{0}' and passwordHash eq '{1}'", user, passwordHash);
             var result = CommonRepositoryHandler.GetListByQuery(typeof(NetworkUser), filter, false).Cast<NetworkUser>().FirstOrDefault();
             return await Task.FromResult(result?.LoginName);
         }

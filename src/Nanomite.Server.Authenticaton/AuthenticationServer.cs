@@ -25,12 +25,19 @@ namespace Nanomite.Server.Authenticaton
     using Nanomite.Core.DataAccess.Database;
     using Nanomite.Server.Authenticaton.Data.Database;
     using Nanomite.Core.Network.Common.Chunking;
+    using Nanomite.Core.Network.Common.Models;
+    using Google.Protobuf.WellKnownTypes;
 
     /// <summary>
     /// Defines the <see cref="AuthenticationServer" />
     /// </summary>
     public class AuthenticationServer : BaseBroker
     {
+        /// <summary>
+        /// The client
+        /// </summary>
+        private static NanomiteClient client;
+
         /// <summary>
         /// Mains the specified arguments.
         /// </summary>
@@ -49,7 +56,8 @@ namespace Nanomite.Server.Authenticaton
 
             // database
             BaseContext.Setup<UserContext>();
-            await CheckDefaultUser(c.DefaultUser, c.DefaultUserPass, c.Secret);
+            await CheckUser(c.BrokerUser, c.BrokerPass, c.Secret);
+            await CheckUser(c.AuthServiceUser, c.AuthServicePass, c.Secret);
 
             // get endpoint for local grpc host
             IPEndPoint grpcEndPoint = new IPEndPoint(IPAddress.Any, config.PortGrpc);//GetCloudAddress(config);
@@ -65,7 +73,7 @@ namespace Nanomite.Server.Authenticaton
 
             // accept client connections
             (this.ActionWorker as ActionWorker).ReadyForConnections = true;
-            Console.WriteLine("Cloud started -> ready for connections.");
+            Console.WriteLine("Auth server started -> ready for connections.");
         }
 
         /// <inheritdoc />
@@ -147,7 +155,7 @@ namespace Nanomite.Server.Authenticaton
         /// <param name="pass">The pass.</param>
         /// <param name="secret">The secret.</param>
         /// <returns></returns>
-        private async Task<NetworkUser> CheckDefaultUser(string loginName, string pass, string secret)
+        private async Task<NetworkUser> CheckUser(string loginName, string pass, string secret)
         {
             try
             {
@@ -158,6 +166,7 @@ namespace Nanomite.Server.Authenticaton
                 {
                     user = new NetworkUser()
                     {
+                        Id = Guid.NewGuid().ToString(),
                         IsActive = true,
                         IsAdmin = true,
                         LoginName = loginName,
