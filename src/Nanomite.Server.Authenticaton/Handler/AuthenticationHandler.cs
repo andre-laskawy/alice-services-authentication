@@ -48,9 +48,9 @@ namespace Nanomite.Server.Authenticaton.Handler
                 try
                 {
                     var user = cmd.Data.FirstOrDefault().CastToModel<NetworkUser>();
-                    if (user == null || !string.IsNullOrEmpty(user.AuthenticationToken))
+                    if (user == null || string.IsNullOrEmpty(user.AuthenticationToken))
                     {
-                        throw new Exception("Ivalid validation data.");
+                        throw new Exception("Invalid validation data.");
                     }
 
                     if (!this.handler.Authenticate(user.AuthenticationToken))
@@ -174,7 +174,7 @@ namespace Nanomite.Server.Authenticaton.Handler
         /// <returns>the users token</returns>
         private async Task<string> GetUser(string user, string passwordHash)
         {
-                string filter = string.Format("LoginName eq '{0}' and passwordHash eq '{1}'", user, passwordHash);
+            string filter = string.Format("LoginName eq '{0}' and passwordHash eq '{1}'", user, passwordHash);
             var result = CommonRepositoryHandler.GetListByQuery(typeof(NetworkUser), filter, false).Cast<NetworkUser>().FirstOrDefault();
             return await Task.FromResult(result?.LoginName);
         }
