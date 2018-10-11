@@ -27,6 +27,7 @@ namespace Nanomite.Server.Authenticaton
     using Nanomite.Core.Network.Common.Chunking;
     using Nanomite.Core.Network.Common.Models;
     using Google.Protobuf.WellKnownTypes;
+    using Nanomite.Core.Authentication;
 
     /// <summary>
     /// Defines the <see cref="AuthenticationServer" />
